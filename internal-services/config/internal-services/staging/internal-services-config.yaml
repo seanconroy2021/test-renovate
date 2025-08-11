@@ -1,0 +1,13 @@
+apiVersion: appstudio.redhat.com/v1alpha1
+kind: InternalServicesConfig
+metadata:
+  name: config
+  namespace: stonesoup-int-srvc
+spec:
+  allowList:
+  - managed-release-team-tenant
+  - rhtap-releng-tenant-removed-since-we-want-to-ship-from-prod
+  debug: true
+  volumeClaim:
+    name: pipeline
+    size: 1Gi
