@@ -1,6 +1,26 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
+  "extends": ["config:recommended"],
+  "enabledManagers": ["kubernetes"],
+  "pinDigests": true,
+
+  "kubernetes": {
+    "managerFilePatterns": [
+      "/^internal-services\\/config\\/cronjob\\/cleanup-internal-requests-pipelineruns\\.ya?ml$/"
+    ]
+  },
+
+  "prCreation": "immediate",
+  "rebaseWhen": "behind",
+  "dependencyDashboard": false,
+
+  "packageRules": [
+    {
+      "matchManagers": ["kubernetes"],
+      "matchPackageNames": ["quay.io/konflux-ci/release-service-utils"],
+      "groupName": "cr-cleanup image",
+      "automerge": false,
+      "automergeType": "branch"
+    }
   ]
 }
