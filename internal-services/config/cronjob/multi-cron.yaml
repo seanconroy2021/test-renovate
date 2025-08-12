@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cleanup-internal-requests-pipelineruns
+  name: cleanup-internal-requests-pipelineruns-copy
   namespace: stonesoup-int-srvc
 spec:
   schedule: "10 * * * *"
