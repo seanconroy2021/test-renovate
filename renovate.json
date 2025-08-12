@@ -1,15 +1,23 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended"
+  ],
   "kubernetes": {
-    "fileMatch": [
-      "internal-services/config/cronjob/.*\\.ya?ml$"
+    "managerFilePatterns": [
+      "/internal-services/config/cronjob/.*\\.ya?ml$/"
     ]
   },
   "packageRules": [
     {
-      "matchPackageNames": ["quay.io/konflux-ci/release-service-utils"],
-      "matchUpdateTypes": ["digest", "minor", "patch"],
+      "matchPackageNames": [
+        "quay.io/konflux-ci/release-service-utils"
+      ],
+      "matchUpdateTypes": [
+        "digest",
+        "minor",
+        "patch"
+      ],
       "groupName": "release-service-utils image updates",
       "timezone": "UTC",
       "prHourlyLimit": 1,
@@ -17,7 +25,11 @@
       "automerge": false,
       "assignees": [],
       "reviewers": [],
-      "labels": ["dependencies", "kubernetes", "image-update"],
+      "labels": [
+        "dependencies",
+        "kubernetes",
+        "image-update"
+      ],
       "commitMessageAction": "replace",
       "commitMessagePrefix": "chore(deps):",
       "commitMessageTopic": "update release-service-utils image",
