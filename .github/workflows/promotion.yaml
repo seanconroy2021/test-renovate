@@ -1,0 +1,57 @@
+name: JIRA CI - Test Promotion Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      promotion_type:
+        description: "Promotion flow to test"
+        type: choice
+        required: true
+        options:
+          - development-to-staging
+          - staging-to-production
+        default: development-to-staging
+      dry_run:
+        description: "Run without making changes?"
+        type: choice
+        required: true
+        options:
+          - "true"
+          - "false"
+        default: "true"
+
+permissions:
+  contents: read
+
+jobs:
+  test-jira-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Generate parsed-tickets.json
+        run: |
+          cat > parsed-tickets.json <<EOF
+          [
+            {
+              "ticket": "RELEASE-1876",
+              "pr_url": "https://github.com/test/test/pull/1"
+            }
+          ]
+          EOF
+
+      - name: Show file (sanity check)
+        run: |
+          echo "=== parsed-tickets.json ==="
+          cat parsed-tickets.json
+          echo "==========================="
+
+      - name: Run JIRA CI Action
+        uses: seanconroy2021/release-service-automations/jira-ci@jira-ci
+        with:
+          jira_url: "https://issues.redhat.com"
+          promotion_type: ${{ github.event.inputs.promotion_type }}
+          metadata_file: "parsed-tickets.json"
+          jira_token: ${{ secrets.JIRA_TOKEN }}
+          dry_run: ${{ github.event.inputs.dry_run }}
