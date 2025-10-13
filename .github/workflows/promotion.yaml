@@ -3,22 +3,20 @@ name: JIRA CI - Test Promotion Action
 on:
   workflow_dispatch:
     inputs:
-      promotion_type:
-        description: "Promotion flow to test"
+      promotion-type:
+        description: The type of promotion to perform
         type: choice
         required: true
+        default: development-to-staging
         options:
           - development-to-staging
           - staging-to-production
-        default: development-to-staging
-      dry_run:
-        description: "Run without making changes?"
-        type: choice
+      dry-run:
+        description: |
+          Dry run: Print out the changes that would be promoted but do not perform the git push
+        type: boolean
         required: true
-        options:
-          - "true"
-          - "false"
-        default: "true"
+        default: false
 
 permissions:
   contents: read
@@ -26,32 +24,31 @@ permissions:
 jobs:
   test-jira-ci:
     runs-on: ubuntu-latest
+    outputs:
+      parsed_tickets_file: ${{ steps.promote.outputs.parsed_tickets_file }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
       - name: Generate parsed-tickets.json
+        id: promote
         run: |
-          cat > parsed-tickets.json <<EOF
-          [
-            {
-              "ticket": "RELEASE-1876",
-              "pr_url": "https://github.com/test/test/pull/1"
-            }
-          ]
-          EOF
+          ./.github/scripts/test.sh
+
 
       - name: Show file (sanity check)
         run: |
           echo "=== parsed-tickets.json ==="
-          cat parsed-tickets.json
+          cat ${{ steps.promote.outputs.parsed_tickets_file }}
           echo "==========================="
 
       - name: Run JIRA CI Action
-        uses: seanconroy2021/release-service-automations/jira-ci@jira-ci
+        if: |
+          steps.promote.outputs.parsed_tickets_file != ''
+        uses: konflux-ci/release-service-automations/jira-ci@2a074bf7270b4212038f4f8e06dff76b8760254b
         with:
           jira_url: "https://issues.redhat.com"
-          promotion_type: ${{ github.event.inputs.promotion_type }}
-          metadata_file: "parsed-tickets.json"
+          promotion_type: ${{ inputs.promotion-type }}
+          metadata_file: ${{ steps.promote.outputs.parsed_tickets_file }}
           jira_token: ${{ secrets.JIRA_TOKEN }}
-          dry_run: ${{ github.event.inputs.dry_run }}
+          dry_run: ${{ inputs.dry-run }}
